@@ -1,1 +1,1 @@
-# Azure Virtual Desktop Stuff
+# Azure Virtual Desktop Stuff and a little bit of automation
