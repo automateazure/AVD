@@ -1,0 +1,129 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "imageTemplateName": {
+        "type": "string"
+        },
+        "api-version": {
+          "type": "string"
+        },
+        "svclocation": {
+            "type": "string"
+        }
+    },
+
+    "variables": {
+    },
+
+
+    "resources": [
+      {
+        "name": "[parameters('imageTemplateName')]",
+        "type": "Microsoft.VirtualMachineImages/imageTemplates",
+        "apiVersion": "[parameters('api-version')]",
+        "location": "[parameters('svclocation')]",
+        "dependsOn": [],
+        "tags": {
+            "imagebuilderTemplate": "AzureImageBuilderSIG",
+            "userIdentity": "enabled"
+                },
+            "identity": {
+                "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                        "": {}
+
+                    }
+                    },
+
+        "properties": {
+            "buildTimeoutInMinutes" : 120,
+
+            "vmProfile":
+                    {
+                    "vmSize": "Standard_B2ms",
+                    "osDiskSizeGB": 127
+                    },
+
+            "source": {
+                "type": "PlatformImage",
+                    "publisher": "MicrosoftWindowsDesktop",
+                    "offer": "windows-10",
+                    "sku": "21h2-ent",
+                    "version": "latest"
+            },
+            "customize": [
+
+
+                    {
+                        "type": "PowerShell",
+                        "name": "Windows Package Manager App Updates",
+                        "runElevated": true,
+                        "runAsSystem": true,
+                        "scriptUri": "https://raw.githubusercontent.com/automateazure/AVD/main/AIBWinGetInstaller.ps1"
+                    },
+                    {
+                        "type": "PowerShell",
+                        "name": "OptimizeOS",
+                        "runElevated": true,
+                        "runAsSystem": true,
+                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1"
+                    },
+                    {
+                        "type": "WindowsRestart",
+                        "restartCheckCommand": "write-host 'restarting post Optimizations'",
+                        "restartTimeout": "5m"
+                    },
+                    {
+                        "type": "PowerShell",
+                        "name": "Install M365",
+                        "runElevated": true,
+                        "runAsSystem": true,
+                        "scriptUri": "https://raw.githubusercontent.com/automateazure/AVD/main/AIBM365.ps1"
+                    },
+                    {
+                        "type": "PowerShell",
+                        "name": "Install Teams",
+                        "runElevated": true,
+                        "runAsSystem": true,
+                        "scriptUri": "https://raw.githubusercontent.com/automateazure/AVD/main/AIBTeams.ps1"
+                    },
+                    {
+                        "type": "WindowsRestart",
+                        "restartCheckCommand": "write-host 'restarting post Teams Install'",
+                        "restartTimeout": "5m"
+                    },
+
+                    {
+                        "type": "WindowsUpdate",
+                        "searchCriteria": "IsInstalled=0",
+                        "filters": [
+                            "exclude:$_.Title -like '*Preview*'",
+                            "include:$true"
+                                    ],
+                        "updateLimit": 40
+                    }
+
+            ],
+            "distribute":
+            [
+                {
+                    "type": "SharedImage",
+                    "galleryImageId": "/subscriptions/c35fecee-25dc-48d4-82c7-141992ffe249/resourceGroups/AA-AzureImageBuilder/providers/Microsoft.Compute/galleries/AIBGallery/images/win10wvd",
+                    "runOutputName": "sigOutput",
+                    "artifactTags": {
+                        "source": "wvd10",
+                        "baseosimg": "windows10"
+                    },
+                    "replicationRegions": [
+                      "westus2"
+
+                    ]
+                }
+            ]
+            }
+        }
+
+
+    ]
+}
