@@ -1,11 +1,13 @@
-﻿<# 
+################# MS Teams Install #################
+
+#description: Installs/Updates MS Teams and WebRTC Service with newest versions. Enables Teams AVD Optimization mode.
+<# 
 Notes:
 This script performs the following:
 1. Sets registry value for MS Teams to AVD Mode
 2. Uninstall MSTeams and WebRTC program
 3. Downloads and Installs latest version of MS Teams machine-wide (Not per-user)
 4. Downloads and Installs latest version of WebRTC component
-5. Sends logs to C:Windows\temp\Logs\ScriptedActions\msteams
 #>
 
 # Start powershell logging
@@ -13,8 +15,8 @@ $SaveVerbosePreference = $VerbosePreference
 $VerbosePreference = 'continue'
 $VMTime = Get-Date
 $LogTime = $VMTime.ToUniversalTime()
-mkdir "C:\Windows\temp\Logs\ScriptedActions\msteams" -Force
-Start-Transcript -Path "C:\Windows\temp\Logs\ScriptedActions\msteams\ps_log.txt" -Append
+mkdir "C:\Windows\temp\AzAutomation\EHP-ITOPS-AUTOMATION\Runbooks\WVDImagePatching\msteams" -Force
+Start-Transcript -Path "C:\Windows\temp\AzAutomation\EHP-ITOPS-AUTOMATION\Runbooks\WVDImagePatching\msteams\ps_log.txt" -Append
 Write-Host "################# New Script Run #################"
 Write-host "Current time (UTC-0): $LogTime"
 
@@ -68,7 +70,7 @@ Invoke-WebRequest -Uri $DLink -OutFile "C:\Windows\Temp\msteams_sa\install\Teams
 # use installer to install Machine-Wide
 Write-Host "INFO: Installing MS Teams"
 Start-Process C:\Windows\System32\msiexec.exe `
--ArgumentList  '/i C:\Windows\Temp\msteams_sa\install\Teams_windows_x64.msi /l*v C:\Windows\temp\Logs\ScriptedActions\msteams\teams_install_log.txt OPTIONS="noAutoStart=true" ALLUSER=1 ALLUSERS=1 /qn /norestart' -Wait
+-ArgumentList  '/i C:\Windows\Temp\msteams_sa\install\Teams_windows_x64.msi /l*v C:\Windows\temp\AzAutomation\EHP-ITOPS-AUTOMATION\Runbooks\WVDImagePatching\msteams\teams_install_log.txt OPTIONS="noAutoStart=true" ALLUSER=1 ALLUSERS=1 /qn /norestart' -Wait
 
 # use MS shortcut to WebRTC install
 $dlink2 = "https://aka.ms/msrdcwebrtcsvc/msi"
@@ -78,7 +80,7 @@ Invoke-WebRequest -Uri $DLink2 -OutFile "C:\Windows\Temp\msteams_sa\install\MsRd
 # install Teams WebRTC Websocket Service
 Write-Host "INFO: Installing WebRTC component"
 Start-Process C:\Windows\System32\msiexec.exe `
--ArgumentList '/i C:\Windows\Temp\msteams_sa\install\MsRdcWebRTCSvc_x64.msi /l*v C:\Windows\temp\Logs\ScriptedActions\msteams\WebRTC_install_log.txt /qn /norestart' -Wait
+-ArgumentList '/i C:\Windows\Temp\msteams_sa\install\MsRdcWebRTCSvc_x64.msi /l*v C:\Windows\temp\AzAutomation\EHP-ITOPS-AUTOMATION\Runbooks\WVDImagePatching\msteams\WebRTC_install_log.txt /qn /norestart' -Wait
 Write-Host "INFO: Finished running installers. Check C:\Windows\Temp\msteams_sa for logs on the MSI installations."
 Write-Host "INFO: All Commands Executed; script is now finished. Allow 5 minutes for teams to appear" -ForegroundColor Green
 
