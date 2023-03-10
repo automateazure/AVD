@@ -1,7 +1,10 @@
-﻿<# 
+################# MS Office Install #################
+
+#description: Installs/Updates Office 365 Apps to newest version and disables Auto-Update.
+<# 
 Notes:
-This script will update Microsoft 365 apps on an Image VM without turning on automatic updates.
-It downloads automatically downloads the latest version of ODT and uses it to update M35 Apps.
+This script will update Microsoft 365 apps without turning on automatic updates.
+It automatically downloads the latest version of ODT and uses it to update M35 Apps.
 
 Please edit $ODTConfig if you use a non-standard deployment of Office 365 (i.e. leaving out powerpoint)
 $ODTConfig is what ODT will use for configuration. 
@@ -18,10 +21,13 @@ $SaveVerbosePreference = $VerbosePreference
 $VerbosePreference = 'continue'
 $VMTime = Get-Date
 $LogTime = $VMTime.ToUniversalTime()
-mkdir "$env:windir\Temp\Logs\ScriptedActions\msoffice_sa" -Force
-Start-Transcript -Path "$env:windir\Temp\Logs\ScriptedActions\msoffice_sa\ps_log.txt" -Append -IncludeInvocationHeader
+mkdir "C:\Windows\temp\AzAutomation\EHP-ITOPS-AUTOMATION\Runbooks\WVDAppPatching\msoffice_sa" -Force
+Start-Transcript -Path "C:\Windows\temp\AzAutomation\EHP-ITOPS-AUTOMATION\Runbooks\WVDAppPatching\msoffice_sa\ps_log.txt" -Append -IncludeInvocationHeader
 Write-Host "################# New Script Run #################"
 Write-host "Current time (UTC-0): $LogTime"
+
+# create directory to store ODT and setup files
+mkdir "$env:windir\Temp\odt_sa\raw" -Force
 
 # create directory to store ODT and setup files
 mkdir "$env:windir\Temp\odt_sa\raw" -Force
@@ -44,13 +50,12 @@ Start-Process -filepath "$env:windir\Temp\odt_sadata.exe" -ArgumentList "/extrac
 # create a base config XML for ODT to use, this one has auto-update disabled
 $ODTConfig = @"
 <Configuration>
-  <Add OfficeClientEdition="64" Channel="MonthlyEnterprise">
+  <Add OfficeClientEdition="64" Channel="Current">
     <Product ID="O365ProPlusRetail">
       <Language ID="en-US" />
       <Language ID="MatchOS" />
       <ExcludeApp ID="Groove" />
       <ExcludeApp ID="Lync" />
-      <ExcludeApp ID="OneDrive" />
       <ExcludeApp ID="Teams" />
     </Product>
   </Add>
@@ -67,6 +72,6 @@ $ODTConfig | Out-File "$env:windir\Temp\odt_sa\raw\odtconfig.xml"
 # execute odt.exe using the newly created odtconfig.xml. This updates/installs office (takes a while)
 Start-Process -filepath "$env:windir\Temp\odt_sa\raw\setup.exe" -ArgumentList "/configure $env:windir\Temp\odt_sa\raw\odtconfig.xml" -Wait
 
-# End Logging
+#End Logging
 Stop-Transcript
 $VerbosePreference=$SaveVerbosePreference
