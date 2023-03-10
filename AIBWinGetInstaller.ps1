@@ -168,10 +168,6 @@ $toSkip = @(
 'RStudio.RStudio.OpenSource',
 'RStudio.RStudio.Professional',
 'Microsoft.WindowsVirtualDesktopBootloader',
-'Microsoft.VC++2013Redist-x64',
-"Microsoft.VC++2013Redist-x86",
-"Microsoft.VC++2015-2019Redist-x64",
-"Microsoft.VC++2015-2019Redist-x86",
 'Microsoft.VisualStudio.2017.BuildTools',
 'Microsoft.VisualStudio.2019.BuildTools'
 'Microsoft.VisualStudio.2019.Professional',
